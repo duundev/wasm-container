@@ -1,0 +1,190 @@
+# WasmContainer - @duun/wasm-container
+
+Uma poderosa biblioteca JavaScript para criar um ambiente completo de desenvolvimento e bundling React que roda **100% no navegador** usando WebAssembly.
+
+## O que é?
+
+Com o WasmContainer, você consegue montar um ambiente React com dependências npm, instalar pacotes, e empacotar o código no próprio browser, sem necessidade de Node.js ou backend.
+
+Perfeito para playgrounds, protótipos, ensino e demos interativas.
+
+## Features
+
+* Ambiente React completo no navegador, com suporte a libs como `react-router-dom` e `axios`.
+* Empacotamento rápido via esbuild compilado em WASM.
+* Resolver customizado para baixar e montar dependências npm no VFS em memória.
+* Sem servidor backend, tudo roda no cliente.
+* Ideal para demos, docs interativos e prototipagem.
+
+## Instalação
+
+```bash
+npm install @duun/wasm-container
+npm install esbuild-wasm@0.23.1
+```
+
+## Uso básico no Next.js
+
+1. Copie arquivos para `public/`:
+
+```bash
+cp ./node_modules/esbuild-wasm/esbuild.wasm ./public/esbuild.wasm
+cp ./node_modules/@duun/wasm-container/assets/resolver.js ./public/resolver.js
+```
+
+2. Exemplo simples:
+
+```jsx
+'use client'; // Define que este componente e suas importações são para o lado do cliente.
+
+import { useEffect, useState, useRef } from 'react';
+import { WasmContainer } from '@duun/wasm-container';
+
+// Um projeto React de exemplo para testar o container.
+const projectFiles = {
+  '/package.json': {
+    file: { 
+      contents: `{
+        "name": "react-app",
+        "dependencies": {
+          "react": "latest",
+          "react-dom": "latest"
+        }
+      }`
+    }
+  },
+  '/src/index.jsx': {
+    file: {
+      contents: `
+        import React from 'react';
+        import { createRoot } from 'react-dom/client';
+
+        function App() {
+          const [count, setCount] = React.useState(0);
+
+          return (
+            <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
+              <h1>WasmContainer em Ação!</h1>
+              <p>Aplicação React empacotada e renderizada no navegador.</p>
+              <button onClick={() => setCount(c => c + 1)}>
+                Cliques: {count}
+              </button>
+            </div>
+          );
+        }
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+      `
+    }
+  }
+};
+
+export default function WasmEditor() {
+  const [container, setContainer] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState('Pronto para executar.');
+  const iframeRef = useRef(null);
+  const isInitialized = useRef(false); // Garante que initialize só roda uma vez
+
+  useEffect(() => {
+    async function initialize() {
+      if (isInitialized.current) return;
+      isInitialized.current = true;
+
+      try {
+        setStatus('Inicializando ambiente WASM...');
+        
+        const instance = await WasmContainer.boot({
+          resolverJsUrl: '/resolver.js',
+          esbuildWasmUrl: '/esbuild.wasm'
+        });
+
+        setContainer(instance);
+        setStatus('Ambiente pronto!');
+
+      } catch (error) {
+        console.error("Falha grave ao inicializar o WasmContainer:", error);
+        setStatus('Erro na inicialização. Verifique o console.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    initialize();
+  }, []);
+
+  const runCode = async () => {
+    if (!container) {
+      alert("O container ainda não foi inicializado!");
+      return;
+    }
+
+    try {
+      setStatus('Montando arquivos...');
+      await container.mount(projectFiles);
+
+      setStatus('Instalando dependências...');
+      await container.install();
+
+      setStatus('Empacotando código com esbuild...');
+      const bundledCode = await container.bundle('/src/index.jsx');
+
+      setStatus('Renderizando preview...');
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Preview</title></head>
+          <body>
+            <div id="root"></div>
+            <script type="module">${bundledCode}</script>
+          </body>
+        </html>
+      `;
+
+      const blob = new Blob([html], { type: 'text/html' });
+      iframeRef.current.src = URL.createObjectURL(blob);
+      setStatus('✅ Sucesso! Preview carregado.');
+
+    } catch (error) {
+      console.error("❌ Falha no processo de execução:", error);
+      setStatus('Erro ao empacotar. Verifique o console.');
+    }
+  };
+
+  if (isLoading) {
+    return <h1>{status} ✨</h1>;
+  }
+
+  return (
+    <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
+      <button onClick={runCode} disabled={!container}>
+        Executar Código
+      </button>
+      <p style={{ fontFamily: 'monospace', height: '20px' }}>
+        Status: {status}
+      </p>
+      <hr />
+      <iframe
+        ref={iframeRef}
+        title="Preview"
+        style={{ width: '100%', height: '500px', border: '1px solid #ccc', background: '#fff' }}
+        sandbox="allow-scripts"
+      />
+    </div>
+  );
+}
+```
+
+## Dicas importantes
+
+* Use a versão exata do `esbuild-wasm` (0.23.1) para evitar incompatibilidades.
+* Copie o `resolver.js` e `esbuild.wasm` para `public/` para o WasmContainer carregar corretamente.
+* O `WasmContainer.boot` deve apontar para as URLs desses arquivos públicos.
+* Use o componente no cliente (`'use client'`) para evitar erros em frameworks SSR como Next.js.
+
+## Licença
+
+MIT
+

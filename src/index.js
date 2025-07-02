@@ -1,0 +1,1 @@
+export { WasmContainer } from './WasmContainer.js';
