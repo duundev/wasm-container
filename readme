@@ -37,15 +37,24 @@ Perfect for:
 ```bash
 npm install @duun/wasm-container
 npm install esbuild-wasm@0.23.1
-⚙️ Basic Usage (Next.js Example)
-1️⃣ Copy required assets to public/
-bash
-Copiar código
+```
+
+---
+
+## ⚙️ Basic Usage (Next.js Example)
+
+### 1️⃣ Copy required assets to `public/`
+
+```bash
 cp ./node_modules/esbuild-wasm/esbuild.wasm ./public/esbuild.wasm
 cp ./node_modules/@duun/wasm-container/assets/resolver.js ./public/resolver.js
-2️⃣ Simple Example
-jsx
-Copiar código
+```
+
+---
+
+### 2️⃣ Simple Example
+
+```jsx
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -54,7 +63,7 @@ import { WasmContainer } from '@duun/wasm-container';
 // Example React project to test the container
 const projectFiles = {
   '/package.json': {
-    file: { 
+    file: {
       contents: `{
         "name": "react-app",
         "dependencies": {
@@ -185,30 +194,42 @@ export default function WasmEditor() {
     </div>
   );
 }
-⚠️ Important Notes
-Use the exact version esbuild-wasm@0.23.1 to ensure compatibility.
+```
 
-Copy both resolver.js and esbuild.wasm into your public/ directory.
+---
 
-WasmContainer.boot() must reference the public URLs of those files.
+## ⚠️ Important Notes
 
-Run this component only on the client side ('use client') for SSR frameworks like Next.js.
+- Use the **exact version** `esbuild-wasm@0.23.1` to ensure compatibility.  
+- Copy both `resolver.js` and `esbuild.wasm` into your `public/` directory.  
+- `WasmContainer.boot()` must reference the **public URLs** of those files.  
+- Run this component only on the **client side** (`'use client'`) for SSR frameworks like Next.js.  
 
-🧭 Roadmap
- CDN-based npm resolver optimization
+---
 
- Persistent Virtual File System
+## 🧭 Roadmap
 
- Advanced dependency caching
+- [ ] CDN-based npm resolver optimization  
+- [ ] Persistent Virtual File System  
+- [ ] Advanced dependency caching  
+- [ ] Live reload for interactive playgrounds  
 
- Live reload for interactive playgrounds
+---
 
-🤝 Contributing
-We’re looking for collaborators!
-If you’re passionate about WebAssembly, React, build tools, or dev environments, join us to push web development to the next level.
+## 🤝 Contributing
 
-👉 Check out the issues
+We’re looking for collaborators!  
+If you’re passionate about **WebAssembly, React, build tools, or dev environments**, join us to push web development to the next level.
+
+👉 Check out the [issues](https://github.com/duun/wasm-container/issues)  
 👉 Discussions and PRs are welcome!
 
-📄 License
-MIT License © Memberx Tecnologia LTDA
+---
+
+## 📄 License
+
+**MIT License** © [Memberx Tecnologia LTDA](https://github.com/duun)
+
+---
+
+## 🌟 Follow the docs and everything will just work 😉
