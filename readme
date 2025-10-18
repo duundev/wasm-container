@@ -1,46 +1,57 @@
-# WasmContainer - @duun/wasm-container
+# 🧩 WasmContainer — [@duun/wasm-container](https://www.npmjs.com/package/@duun/wasm-container)
 
-Uma poderosa biblioteca JavaScript para criar um ambiente completo de desenvolvimento e bundling React que roda **100% no navegador** usando WebAssembly.
+> A powerful JavaScript library that creates a **fully functional React development and bundling environment** running **100% in the browser**, powered by WebAssembly.
 
-## O que é?
+[![npm version](https://img.shields.io/npm/v/@duun/wasm-container.svg)](https://www.npmjs.com/package/@duun/wasm-container)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Build with Love](https://img.shields.io/badge/made%20with-%E2%9D%A4-red.svg)](#)
 
-Com o WasmContainer, você consegue montar um ambiente React com dependências npm, instalar pacotes, e empacotar o código no próprio browser, sem necessidade de Node.js ou backend.
+---
 
-Perfeito para playgrounds, protótipos, ensino e demos interativas.
+## 🚀 What is it?
 
-## Features
+**WasmContainer** allows you to spin up a complete React development environment **entirely in the browser**.  
+You can install npm dependencies, bundle your code, and run everything — **without Node.js or any backend**.
 
-* Ambiente React completo no navegador, com suporte a libs como `react-router-dom` e `axios`.
-* Empacotamento rápido via esbuild compilado em WASM.
-* Resolver customizado para baixar e montar dependências npm no VFS em memória.
-* Sem servidor backend, tudo roda no cliente.
-* Ideal para demos, docs interativos e prototipagem.
+Perfect for:
 
-## Instalação
+- 🧠 Online playgrounds  
+- ⚙️ Prototyping & rapid experiments  
+- 📘 Interactive documentation  
+- 🎓 Teaching & workshops  
+
+---
+
+## ✨ Features
+
+- ✅ Full React runtime in the browser (supports `react-router-dom`, `axios`, and more)  
+- ⚡ Lightning-fast bundling via `esbuild-wasm`  
+- 📦 Custom npm resolver with in-memory Virtual File System (VFS)  
+- 🌐 100% client-side — no backend needed  
+- 🧠 Perfect for live demos, documentation, and prototyping  
+
+---
+
+## 📦 Installation
 
 ```bash
 npm install @duun/wasm-container
 npm install esbuild-wasm@0.23.1
-```
-
-## Uso básico no Next.js
-
-1. Copie arquivos para `public/`:
-
-```bash
+⚙️ Basic Usage (Next.js Example)
+1️⃣ Copy required assets to public/
+bash
+Copiar código
 cp ./node_modules/esbuild-wasm/esbuild.wasm ./public/esbuild.wasm
 cp ./node_modules/@duun/wasm-container/assets/resolver.js ./public/resolver.js
-```
-
-2. Exemplo simples:
-
-```jsx
-'use client'; // Define que este componente e suas importações são para o lado do cliente.
+2️⃣ Simple Example
+jsx
+Copiar código
+'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { WasmContainer } from '@duun/wasm-container';
 
-// Um projeto React de exemplo para testar o container.
+// Example React project to test the container
 const projectFiles = {
   '/package.json': {
     file: { 
@@ -64,10 +75,10 @@ const projectFiles = {
 
           return (
             <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-              <h1>WasmContainer em Ação!</h1>
-              <p>Aplicação React empacotada e renderizada no navegador.</p>
+              <h1>⚙️ WasmContainer in Action!</h1>
+              <p>React app bundled and rendered fully in the browser.</p>
               <button onClick={() => setCount(c => c + 1)}>
-                Cliques: {count}
+                Clicks: {count}
               </button>
             </div>
           );
@@ -84,9 +95,9 @@ const projectFiles = {
 export default function WasmEditor() {
   const [container, setContainer] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [status, setStatus] = useState('Pronto para executar.');
+  const [status, setStatus] = useState('Ready to run.');
   const iframeRef = useRef(null);
-  const isInitialized = useRef(false); // Garante que initialize só roda uma vez
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     async function initialize() {
@@ -94,19 +105,18 @@ export default function WasmEditor() {
       isInitialized.current = true;
 
       try {
-        setStatus('Inicializando ambiente WASM...');
-        
+        setStatus('Initializing WASM environment...');
+
         const instance = await WasmContainer.boot({
           resolverJsUrl: '/resolver.js',
           esbuildWasmUrl: '/esbuild.wasm'
         });
 
         setContainer(instance);
-        setStatus('Ambiente pronto!');
-
+        setStatus('Environment ready!');
       } catch (error) {
-        console.error("Falha grave ao inicializar o WasmContainer:", error);
-        setStatus('Erro na inicialização. Verifique o console.');
+        console.error('Critical initialization error:', error);
+        setStatus('Initialization failed. Check console for details.');
       } finally {
         setIsLoading(false);
       }
@@ -117,21 +127,21 @@ export default function WasmEditor() {
 
   const runCode = async () => {
     if (!container) {
-      alert("O container ainda não foi inicializado!");
+      alert('The container is not initialized yet!');
       return;
     }
 
     try {
-      setStatus('Montando arquivos...');
+      setStatus('Mounting files...');
       await container.mount(projectFiles);
 
-      setStatus('Instalando dependências...');
+      setStatus('Installing dependencies...');
       await container.install();
 
-      setStatus('Empacotando código com esbuild...');
+      setStatus('Bundling code with esbuild...');
       const bundledCode = await container.bundle('/src/index.jsx');
 
-      setStatus('Renderizando preview...');
+      setStatus('Rendering preview...');
       const html = `
         <!DOCTYPE html>
         <html>
@@ -145,46 +155,60 @@ export default function WasmEditor() {
 
       const blob = new Blob([html], { type: 'text/html' });
       iframeRef.current.src = URL.createObjectURL(blob);
-      setStatus('✅ Sucesso! Preview carregado.');
-
+      setStatus('✅ Success! Preview loaded.');
     } catch (error) {
-      console.error("❌ Falha no processo de execução:", error);
-      setStatus('Erro ao empacotar. Verifique o console.');
+      console.error('❌ Execution error:', error);
+      setStatus('Bundling failed. Check console for details.');
     }
   };
 
-  if (isLoading) {
-    return <h1>{status} ✨</h1>;
-  }
+  if (isLoading) return <h1>{status} ✨</h1>;
 
   return (
     <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
       <button onClick={runCode} disabled={!container}>
-        Executar Código
+        Run Code
       </button>
-      <p style={{ fontFamily: 'monospace', height: '20px' }}>
-        Status: {status}
-      </p>
+      <p style={{ fontFamily: 'monospace', height: '20px' }}>Status: {status}</p>
       <hr />
       <iframe
         ref={iframeRef}
         title="Preview"
-        style={{ width: '100%', height: '500px', border: '1px solid #ccc', background: '#fff' }}
+        style={{
+          width: '100%',
+          height: '500px',
+          border: '1px solid #ccc',
+          background: '#fff',
+        }}
         sandbox="allow-scripts"
       />
     </div>
   );
 }
-```
+⚠️ Important Notes
+Use the exact version esbuild-wasm@0.23.1 to ensure compatibility.
 
-## Dicas importantes
+Copy both resolver.js and esbuild.wasm into your public/ directory.
 
-* Use a versão exata do `esbuild-wasm` (0.23.1) para evitar incompatibilidades.
-* Copie o `resolver.js` e `esbuild.wasm` para `public/` para o WasmContainer carregar corretamente.
-* O `WasmContainer.boot` deve apontar para as URLs desses arquivos públicos.
-* Use o componente no cliente (`'use client'`) para evitar erros em frameworks SSR como Next.js.
+WasmContainer.boot() must reference the public URLs of those files.
 
-## Licença
+Run this component only on the client side ('use client') for SSR frameworks like Next.js.
 
-MIT
+🧭 Roadmap
+ CDN-based npm resolver optimization
 
+ Persistent Virtual File System
+
+ Advanced dependency caching
+
+ Live reload for interactive playgrounds
+
+🤝 Contributing
+We’re looking for collaborators!
+If you’re passionate about WebAssembly, React, build tools, or dev environments, join us to push web development to the next level.
+
+👉 Check out the issues
+👉 Discussions and PRs are welcome!
+
+📄 License
+MIT License © Memberx Tecnologia LTDA
